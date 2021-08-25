@@ -1,20 +1,16 @@
-// @flow
-
 import React, { Component } from "react";
 import GraphiQL from "graphiql";
 import GraphiQLExplorer from "graphiql-explorer";
 import { buildClientSchema, getIntrospectionQuery, parse } from "graphql";
 
-import { makeDefaultArg, getDefaultScalarArgValue } from "./CustomArgs";
-
 import "graphiql/graphiql.css";
 import "./App.css";
 
-import type { GraphQLSchema } from "graphql";
+// import type { GraphQLSchema } from "graphql";
 
-function fetcher(params: Object): Object {
+function fetcher(params) {
   return fetch(
-    "https://serve.onegraph.com/dynamic?app_id=c333eb5b-04b2-4709-9246-31e18db397e1",
+    process.env.REACT_APP_GQL_URL,
     {
       method: "POST",
       headers: {
@@ -36,56 +32,16 @@ function fetcher(params: Object): Object {
     });
 }
 
-const DEFAULT_QUERY = `# shift-option/alt-click on a query below to jump to it in the explorer
-# option/alt-click on a field in the explorer to select all subfields
-query npmPackage {
-  npm {
-    package(name: "onegraph-apollo-client") {
-      name
-      homepage
-      downloads {
-        lastMonth {
-          count
-        }
-      }
-    }
-  }
-}
+// type State = {
+//   schema: ?GraphQLSchema,
+//   query: string,
+//   explorerIsOpen: boolean
+// };
 
-query graphQLPackage {
-  npm {
-    package(name: "graphql") {
-      name
-      homepage
-      downloads {
-        lastMonth {
-          count
-        }
-      }
-    }
-  }
-}
-
-fragment bundlephobiaInfo on BundlephobiaDependencyInfo {
-  name
-  size
-  version
-  history {
-    dependencyCount
-    size
-    gzip
-  }
-}`;
-
-type State = {
-  schema: ?GraphQLSchema,
-  query: string,
-  explorerIsOpen: boolean
-};
-
-class App extends Component<{}, State> {
-  _graphiql: GraphiQL;
-  state = { schema: null, query: DEFAULT_QUERY, explorerIsOpen: true };
+class App extends Component {
+  // _graphiql: GraphiQL;
+  _graphiql;
+  state = { schema: null, explorerIsOpen: true };
 
   componentDidMount() {
     fetcher({
@@ -102,8 +58,10 @@ class App extends Component<{}, State> {
   }
 
   _handleInspectOperation = (
-    cm: any,
-    mousePos: { line: Number, ch: Number }
+    cm,
+    mousePos
+    // cm: any,
+    // mousePos: { line: Number, ch: Number }
   ) => {
     const parsedQuery = parse(this.state.query || "");
 
@@ -159,7 +117,8 @@ class App extends Component<{}, State> {
     el && el.scrollIntoView();
   };
 
-  _handleEditQuery = (query: string): void => this.setState({ query });
+  // _handleEditQuery = (query: string): void => this.setState({ query });
+  _handleEditQuery = (query) => this.setState({ query });
 
   _handleToggleExplorer = () => {
     this.setState({ explorerIsOpen: !this.state.explorerIsOpen });
@@ -178,8 +137,6 @@ class App extends Component<{}, State> {
           }
           explorerIsOpen={this.state.explorerIsOpen}
           onToggleExplorer={this._handleToggleExplorer}
-          getDefaultScalarArgValue={getDefaultScalarArgValue}
-          makeDefaultArg={makeDefaultArg}
         />
         <GraphiQL
           ref={ref => (this._graphiql = ref)}
