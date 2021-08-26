@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  graphiql:
+    build: .
+    restart: unless-stopped
+    ports:
+      - 3002:3000
+    env_file:
+      - .env
+    environment:
+      REACT_APP_GQL_URL: ${REACT_APP_GQL_URL}#
